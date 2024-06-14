@@ -8,6 +8,9 @@ class CoreConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "core"
 
+    def ready(self) -> None:
+        from core import observers
+
 
 @receiver(pre_init)
 def check_admin_vars(sender, **kwargs):
@@ -27,9 +30,21 @@ def create_superuser(sender, **kwargs):
     admin_username = environ.get("ADMIN_USERNAME")
     admin_pass = environ.get("ADMIN_PASSWORD")
 
-    admin_exists = User.objects.filter(username=admin_username)
+    admin_exists = User.objects.filter(username=admin_username).exists()
 
     if not admin_exists:
         print("Usuário admin não encontrado! Criando...")
         User.objects.create_superuser(username=admin_username, password=admin_pass)
+        print("Criado!")
+
+
+@receiver(post_migrate)
+def create_employee_group(sender, **kwargs):
+    from django.contrib.auth.models import Group
+
+    group_exists = Group.objects.filter(name="employee").exists()
+
+    if not group_exists:
+        print("Criando grupo de funcionários...")
+        Group.objects.create(name="employee")
         print("Criado!")

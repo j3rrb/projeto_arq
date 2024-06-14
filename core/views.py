@@ -1,11 +1,17 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import Group, Sale, Product, Manufacturer
+from .models import Group, Sale, Product, Manufacturer, Location
+from .forms import SaleForm, ManufacturerForm, ProductForm, GroupForm
 
 
 def is_admin(user):
     return user.is_superuser
+
+
+def dashboard(request):
+    if request.method == "GET":
+        return render(request, "dashboard.html")
 
 
 @login_required
@@ -60,33 +66,82 @@ def list_sales(request):
 
 @login_required
 @user_passes_test(is_admin, "/")
-def get_product(request):
-    pass
-
-
-@login_required
-@user_passes_test(is_admin, "/")
 def create_manufacturer(request):
-    if request.method == "GET":
+    message = None
+    errors = None
 
-        return render(
-            request,
-            "forms/create-manufacturer.html",
-        )
+    if request.method == "POST":
+        post_data = request.POST.copy()
+
+        address = post_data["address"]
+        phone = post_data["phone"]
+
+        location = Location.objects.create(address=address, phone=phone)
+
+        post_data["location"] = location
+
+        form = ManufacturerForm(post_data)
+
+        if form.is_valid():
+            try:
+                Manufacturer.objects.create(**form.cleaned_data)
+                message = "Fabricante criado com sucesso!"
+                redirect("/manufacturer/")
+            except Exception as e:
+                print(e)
+        else:
+            errors = form.errors
+
+    return render(
+        request,
+        "forms/create-manufacturer.html",
+        {"message": message, "errors": errors},
+    )
 
 
 @login_required
 @user_passes_test(is_admin, "/")
 def create_product(request):
-    if request.method == "GET":
-        manufacturers = Manufacturer.objects.all().order_by("-updated_at")
-        groups = Group.objects.all().order_by("-updated_at")
+    message = None
+    errors = None
+    manufacturers = Manufacturer.objects.all().order_by("-updated_at")
+    groups = Group.objects.all().order_by("-updated_at")
 
-        return render(
-            request,
-            "forms/create-product.html",
-            {"manufacturers": manufacturers, "groups": groups},
-        )
+    if request.method == "POST":
+        post_data = request.POST.copy()
+
+        manufacturer = Manufacturer.objects.get(id=post_data["manufacturer"])
+        group = Group.objects.get(id=post_data["group"])
+
+        if post_data.get("sub_group", None):
+            sub_group = Group.objects.get(id=post_data["sub_group"])
+            post_data["sub_group"] = sub_group
+
+        post_data["manufacturer"] = manufacturer
+        post_data["group"] = group
+
+        form = ProductForm(post_data)
+
+        if form.is_valid():
+            try:
+                Product.objects.create(**form.cleaned_data)
+                message = "Produto criado com sucesso!"
+                redirect("/product/")
+            except Exception as e:
+                print(e)
+        else:
+            errors = form.errors
+
+    return render(
+        request,
+        "forms/create-product.html",
+        {
+            "message": message,
+            "manufacturers": manufacturers,
+            "groups": groups,
+            "errors": errors,
+        },
+    )
 
 
 @login_required
@@ -100,26 +155,75 @@ def get_subgroups(request):
 @login_required
 @user_passes_test(is_admin, "/")
 def create_group(request):
-    if request.method == "GET":
-        groups = Group.objects.all().order_by("-updated_at")
+    message = None
+    errors = None
+    groups = Group.objects.all().order_by("-updated_at")
 
-        return render(
-            request,
-            "forms/create-group.html",
-            {"groups": groups},
-        )
+    if request.method == "POST":
+        form = GroupForm(request.POST)
+
+        if form.is_valid():
+            try:
+                Group.objects.create(**form.cleaned_data)
+                message = "Grupo criado com sucesso!"
+                redirect("/group/")
+            except Exception as e:
+                print(e)
+        else:
+            errors = form.errors
+
+    return render(
+        request,
+        "forms/create-group.html",
+        {"groups": groups, "message": message, "errors": errors},
+    )
 
 
 @login_required
 @user_passes_test(is_admin, "/")
 def create_sale(request):
-    if request.method == "GET":
-        products = Product.objects.all().order_by("-updated_at")
-        manufacturers = Manufacturer.objects.all().order_by("-updated_at")
-        groups = Group.objects.all().order_by("-updated_at")
+    message = None
+    errors = None
+    products = Product.objects.all().order_by("-updated_at")
 
-        return render(
-            request,
-            "forms/create-sale.html",
-            {"groups": groups, "manufacturers": manufacturers, "products": products},
-        )
+    if request.method == "POST":
+        post_data = request.POST.copy()
+
+        qty = post_data["qty"]
+        product = Product.objects.get(id=post_data["product"])
+
+        total = float(product.sale_price) * float(qty)
+        manufacturer = product.manufacturer
+        group = product.group
+        sub_group = product.sub_group
+
+        if sub_group:
+            sub_group = product.sub_group
+
+        post_data["sold_price"] = total
+        post_data["product"] = product
+        post_data["manufacturer"] = manufacturer
+        post_data["group"] = group
+        post_data["sub_group"] = sub_group
+        post_data["sold_qty"] = qty
+
+        form = SaleForm(post_data)
+
+        if form.is_valid():
+            try:
+                Sale.objects.create(**form.cleaned_data)
+                message = "Venda criada com sucesso!"
+                redirect("/group/")
+            except Exception as e:
+                if type(e) is ValueError:
+                    errors = e
+                else:
+                    print(e)
+        else:
+            errors = form.errors
+
+    return render(
+        request,
+        "forms/create-sale.html",
+        {"products": products, "message": message, "errors": errors},
+    )

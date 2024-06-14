@@ -1,6 +1,10 @@
 from django.urls import path
 from . import views
 
+dashboard_urls = [
+    path("", views.dashboard, name="Dashboard"),
+]
+
 product_urls = [
     path("", views.list_product, name="List products"),
     path("create/", views.create_product, name="Create product"),

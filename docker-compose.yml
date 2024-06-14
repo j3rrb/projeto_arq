@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  django:
+    build:
+      context: .
+    container_name: django_app
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    expose:
+      - "8000"
+    command: >
+      sh -c "python manage.py migrate &&
+             gunicorn --bind 0.0.0.0:8000 projeto_arq.wsgi:application"
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - django
+      

@@ -1,5 +1,6 @@
+from typing import Iterable
 from django.db import models
-from django.contrib.auth.models import User
+from django.core.validators import MinLengthValidator
 from cuid import cuid
 
 
@@ -39,9 +40,17 @@ class Location(BaseModel):
 class Manufacturer(BaseModel):
     name = models.CharField(max_length=50, null=False, blank=False)
     social_name = models.CharField(max_length=50, null=False, blank=False)
-    document = models.CharField(max_length=14, null=False, blank=False)
-    email = models.EmailField(null=False, blank=True)
+    document = models.CharField(
+        max_length=14,
+        null=False,
+        blank=False,
+        unique=True,
+        validators=[MinLengthValidator(14)],
+    )
+    email = models.EmailField(null=False, blank=True, unique=True)
     salesman = models.CharField(max_length=50, null=False, blank=False)
+
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
 
     def __getitem__(self, key):
         if hasattr(self, key):
@@ -61,7 +70,7 @@ class Manufacturer(BaseModel):
 
 
 class Group(BaseModel):
-    name = models.CharField(max_length=50, null=False, blank=False)
+    name = models.CharField(max_length=50, null=False, blank=False, unique=True)
     description = models.CharField(max_length=150, null=True, blank=True)
 
     parent = models.ForeignKey(
@@ -135,6 +144,7 @@ class Product(BaseModel):
 class Sale(BaseModel):
     timestamp = models.DateTimeField(auto_now_add=True)
     sold_price = models.DecimalField(max_digits=16, null=False, decimal_places=2)
+    sold_qty = models.IntegerField(null=False, blank=False)
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     manufacturer = models.ForeignKey(Manufacturer, on_delete=models.CASCADE)
