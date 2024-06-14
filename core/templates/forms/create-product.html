@@ -1,0 +1,53 @@
+{% extends 'partials/base.html' %}
+
+{% block content %}
+  <h1 class="text-4xl text-center mt-5">Criar produto</h1>
+  <form class="mt-5 flex flex-col gap-2 max-w-[300px] m-auto" action="" method="post">
+    {% csrf_token %}
+    <input class="border p-2" placeholder="Nome" required name="name" type="text" />
+    <input class="border p-2" placeholder="Descrição" name="description" type="text" />
+    <input class="border p-2" placeholder="Preço de custo" name="cost_price" required type="number" />
+    <input class="border p-2" placeholder="Preço de venda" name="sale_price" required type="number" />
+    <input class="border p-2" placeholder="Peso" name="weight" required type="number" />
+    <input class="border p-2" placeholder="Quantidade comprada" name="bought_qty" required type="number" />
+    <input class="border p-2" placeholder="Quantidade vendida" name="sold_qty" required type="number" />
+    <select class="border p-2" name="manufacturer">
+      <option value="null" disabled hidden selected>Fabricante</option>
+      {% for m in manufacurers %}
+        <option value="{{ m.id }}">{{ m.name }}</option>
+      {% endfor %}
+    </select>
+    <select required id="group_select" onchange="loadSubgroups()" class="border p-2" name="group">
+      <option value="null" disabled hidden selected>Grupo</option>
+      {% for g in groups %}
+        <option value="{{ g.id }}">{{ g.name }}</option>
+      {% endfor %}
+    </select>
+    <select hidden id="sub_group_select" class="border p-2" name="sub_group">
+      <option value="null" disabled hidden selected>Subgrupo</option>
+    </select>
+    <button class="bg-green-500 mt-2 py-2 px-4 text-white rounded-md" type="submit">Salvar</button>
+  </form>
+  <script>
+    function loadSubgroups() {
+      const groupSelect = document.getElementById('group_select')
+      const selectedValue = groupSelect.value
+    
+      fetch(`/group/get-subgroups?parent_id=${selectedValue}`).then((res) => {
+        res.json().then((json) => {
+          if (json.length > 0) {
+            const subGroupSelect = document.getElementById('sub_group_select')
+            subGroupSelect.hidden = false
+    
+            for (subGroup of json) {
+              const option = document.createElement('option')
+              option.value = subGroup.id
+              option.innerText = subGroup.name
+              subGroupSelect.appendChild(option)
+            }
+          }
+        })
+      })
+    }
+  </script>
+{% endblock %}

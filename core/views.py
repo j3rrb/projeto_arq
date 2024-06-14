@@ -15,12 +15,6 @@ def index(request):
 
 
 @login_required
-@user_passes_test(is_admin, '/')
-def create_product(request):
-    pass
-
-
-@login_required
 def list_product(request):
     if request.method == "GET":
         products = Product.objects.all().order_by("-updated_at")
@@ -65,15 +59,34 @@ def list_sales(request):
 
 
 @login_required
-@user_passes_test(is_admin, '/')
+@user_passes_test(is_admin, "/")
 def get_product(request):
     pass
 
 
 @login_required
-@user_passes_test(is_admin, '/')
+@user_passes_test(is_admin, "/")
 def create_manufacturer(request):
-    pass
+    if request.method == "GET":
+
+        return render(
+            request,
+            "forms/create-manufacturer.html",
+        )
+
+
+@login_required
+@user_passes_test(is_admin, "/")
+def create_product(request):
+    if request.method == "GET":
+        manufacturers = Manufacturer.objects.all().order_by("-updated_at")
+        groups = Group.objects.all().order_by("-updated_at")
+
+        return render(
+            request,
+            "forms/create-product.html",
+            {"manufacturers": manufacturers, "groups": groups},
+        )
 
 
 @login_required
@@ -85,18 +98,28 @@ def get_subgroups(request):
 
 
 @login_required
-@user_passes_test(is_admin, '/')
+@user_passes_test(is_admin, "/")
 def create_group(request):
-    pass
+    if request.method == "GET":
+        groups = Group.objects.all().order_by("-updated_at")
+
+        return render(
+            request,
+            "forms/create-group.html",
+            {"groups": groups},
+        )
 
 
 @login_required
-@user_passes_test(is_admin, '/')
-def create_subgroup(request):
-    pass
-
-
-@login_required
-@user_passes_test(is_admin, '/')
+@user_passes_test(is_admin, "/")
 def create_sale(request):
-    pass
+    if request.method == "GET":
+        products = Product.objects.all().order_by("-updated_at")
+        manufacturers = Manufacturer.objects.all().order_by("-updated_at")
+        groups = Group.objects.all().order_by("-updated_at")
+
+        return render(
+            request,
+            "forms/create-sale.html",
+            {"groups": groups, "manufacturers": manufacturers, "products": products},
+        )

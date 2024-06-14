@@ -1,6 +1,9 @@
 {% extends 'partials/base.html' %}
 
 {% block content %}
+  <div class="flex justify-center m-2">
+    <button onclick="document.location.href='/product/create'" class="bg-green-500 py-2 px-4 text-white rounded-md">Criar</button>
+  </div>
   {% if products|length_is:'0' %}
     <div class="w-full top-[50%] absolute text-center">
       <h1 class="text-2xl">Sem produtos cadastrados</h1>

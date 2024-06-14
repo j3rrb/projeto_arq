@@ -1,0 +1,23 @@
+{% extends 'partials/base.html' %}
+
+{% block content %}
+  <h1 class="text-4xl text-center mt-5">Criar grupo</h1>
+  <form class="mt-5 flex flex-col gap-2 max-w-[300px] m-auto" action="" method="post">
+    {% csrf_token %}
+    <input class="border p-2" placeholder="Nome" required name="name" type="text" />
+    <input class="border p-2" placeholder="Descrição" name="description" type="text" />
+    <select id="parent_group_select" onchange="loadSubgroups()" class="border p-2" name="parent">
+      <option value="null" disabled hidden selected>Grupo pai</option>
+      {% for g in groups %}
+        <option value="{{ g.id }}">{{ g.name }}</option>
+      {% endfor %}
+    </select>
+    <select id="sub_group_select" onchange="loadSubgroups()" class="border p-2" name="sub_group">
+        <option value="null" disabled hidden selected>Subgrupo</option>
+        {% for g in groups %}
+          <option value="{{ g.id }}">{{ g.name }}</option>
+        {% endfor %}
+      </select>
+    <button class="bg-green-500 mt-2 py-2 px-4 text-white rounded-md" type="submit">Salvar</button>
+  </form>
+{% endblock %}
