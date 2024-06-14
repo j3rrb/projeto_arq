@@ -1,3 +1,4 @@
 from django.contrib import admin
+from .models import Group, Location, Product, Manufacturer, Sale
 
-# Register your models here.
+admin.site.register([Group, Location, Product, Manufacturer, Sale])

@@ -1,1 +1,13 @@
-{% extends "partials/base.html" %}
+{% extends 'partials/base.html' %}
+
+{% block content %}
+  <div class="flex flex-col absolute top-[30%] gap-2 left-[50%] items-center">
+    <a class="border w-[300px] px-4 py-2 rounded-md text-2xl transition-all duration-300 hover:bg-blue-500 hover:text-white text-center" href="/product">Produtos</a>
+    <a class="border w-[300px] px-4 py-2 rounded-md text-2xl transition-all duration-300 hover:bg-blue-500 hover:text-white text-center" href="/manufacturer">Fabricantes</a>
+    <a class="border w-[300px] px-4 py-2 rounded-md text-2xl transition-all duration-300 hover:bg-blue-500 hover:text-white text-center" href="/group">Grupos</a>
+    <a class="border w-[300px] px-4 py-2 rounded-md text-2xl transition-all duration-300 hover:bg-blue-500 hover:text-white text-center" href="/sale">Vendas</a>
+    {% if user.is_superuser %}
+      <a class="border w-[300px] px-4 py-2 rounded-md text-2xl transition-all duration-300 hover:bg-blue-500 hover:text-white text-center" href="/create-employee">Criar funcionário</a>
+    {% endif %}
+  </div>
+{% endblock %}

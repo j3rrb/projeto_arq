@@ -5,7 +5,9 @@ name = "pypi"
 
 [packages]
 django = "*"
-cuid2 = "*"
+cuid = "*"
+plotly = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

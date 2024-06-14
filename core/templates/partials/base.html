@@ -1,15 +1,37 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Projeto ARQ</title>
-</head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        width: 100vw;
+      }
+    </style>
+  </head>
 
-<body>
-    {% block content %}
-    {% endblock content %}
-</body>
+  <body>
+    <nav class="bg-blue-500 h-[70px] flex items-center text-white text-xl">
+      <h1 class="ml-3 cursor-pointer" onclick="document.location.href='/'">Projeto de Arquitetura</h1>
+    </nav>
+    <main>
+      {% block content %}
 
+      {% endblock %}
+    </main>
+    {% if user.is_authenticated %}
+      <footer class="bg-blue-500 h-[70px] fixed bottom-0 w-full flex items-center justify-around text-white text-xl">
+        <h1 class="ml-3">Usuário: {{ user.username }}</h1>
+        <form action="{% url 'logout' %}" method="post">
+          {% csrf_token %}
+          <button class="bg-red-500 rounded-md p-2 text-white font-bold" type="submit">Sair</button>
+        </form>
+      </footer>
+    {% endif %}
+  </body>
 </html>
