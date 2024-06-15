@@ -1,5 +1,46 @@
 {% extends 'partials/base.html' %}
 
 {% block content %}
-  
+<h1 class="text-4xl ml-5">Relatórios de Vendas e Estoque</h1>
+
+<div class="grid grid-cols-2">
+
+    <div>
+        <div>
+            {{ bar_chart | safe }}
+        </div>
+        <div>
+            {{ bar_line_chart | safe }}
+        </div>
+    </div>
+
+    <div>
+        <div>
+            {{ line_chart | safe }}
+        </div>
+        <div>
+            {{ pie_chart | safe }}
+        </div>
+    </div>
+
+    <div>
+        {{ scatter_chart | safe }}
+    </div>
+
+    <div>
+        <div class="bg-blue-500 text-center text-white text-lg m-2">Pouco estoque</div>
+        <div class="bg-blue-500 text-center text-white text-lg m-2 grid grid-cols-3">
+            <div>Nome</div>
+            <div>Quantidade comprada</div>
+            <div>Quantidade vendida</div>
+        </div>
+        <div class="grid grid-cols-3">
+            {% for p in table_chart %}
+            <div>{{p.name}}</div>
+            <div>{{p.bought_qty}}</div>
+            <div>{{p.sold_qty}}</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 {% endblock %}

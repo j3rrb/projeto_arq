@@ -3,15 +3,23 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Group, Sale, Product, Manufacturer, Location
 from .forms import SaleForm, ManufacturerForm, ProductForm, GroupForm
+from .charts import bar_chart, bar_line_chart, line_chart, pie_chart, scatter_chart, table_chart
 
 
 def is_admin(user):
     return user.is_superuser
 
-
+@login_required
 def dashboard(request):
     if request.method == "GET":
-        return render(request, "dashboard.html")
+        return render(request, 'dashboard.html', {
+            "bar_chart": bar_chart,
+            "bar_line_chart": bar_line_chart,
+            "line_chart": line_chart,
+            "pie_chart": pie_chart,
+            "scatter_chart": scatter_chart,
+            "table_chart": table_chart
+        })
 
 
 @login_required
